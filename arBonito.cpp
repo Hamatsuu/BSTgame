@@ -159,13 +159,34 @@ struct arBonito: public BST< visData >
     }
 
     void Loop()
-    {
+    {   
+        //Load BGM start
+        InitAudioDevice();              // Initialize audio device
+        
+        Music bgm =LoadMusicStream("assets/main_theme.mp3"); //Balatro bgm
+        
+        PlayMusicStream(bgm);
+
+        
+        float timePlayed = 0.0f;
+
+        //Load BGM end
+
         InitWindow (ancho, alto, "ArBonito");
         SetTargetFPS (60);
 
         // Main loop
         while (!WindowShouldClose ()) // Detect window close button or ESC key
         {
+            
+            //BGM update start
+            UpdateMusicStream(bgm);   // Update music buffer with new stream data
+
+            timePlayed = GetMusicTimePlayed(bgm)/GetMusicTimeLength(bgm);
+            
+            if (timePlayed > 1.0f) timePlayed = 1.0f;
+
+            //BGM update end
 
             // --- CLICK TO DELETE NODE ---
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) 
