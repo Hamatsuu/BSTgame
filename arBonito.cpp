@@ -61,6 +61,7 @@ void BGM ()
 
 
 listaS<nodoT<visData>*> inventory;
+int selectedSlot = -1; 
 
 struct arBonito: public BST< visData >
 {
