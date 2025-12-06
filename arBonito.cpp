@@ -52,14 +52,6 @@ ostream & operator << (ostream & s, visData &v)
 }
 
 
-void BGM ()
-{
-    
-
-}
-
-
-
 listaS<nodoT<visData>*> inventory;
 int selectedSlot = -1; 
 
@@ -235,6 +227,9 @@ struct arBonito: public BST< visData >
         InitAudioDevice();              // Initialize audio device
 
         Music bgm =LoadMusicStream("assets/main_theme.mp3"); //Balatro bgm
+        
+        Sound sfx_extract = LoadSound("assets/cardSlide1.ogg");
+        Sound sfx_insert = LoadSound("assets/chips2.ogg");
 
         PlayMusicStream(bgm);
 
@@ -260,10 +255,12 @@ struct arBonito: public BST< visData >
 
             // --- CLICK TO DELETE NODE ---
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) 
-            {
+            {   
+
                 nodoT<visData>* clicked = findClickedNode(this->raiz);
                 if (clicked) 
                 {
+                    PlaySound(sfx_extract);
                     cout << "Nodo a Inventario: " << clicked->dato.val << endl;
                     inventory.pushBack(this->extraeNodo(clicked));   // insertar en el inventario
                 }
@@ -274,6 +271,7 @@ struct arBonito: public BST< visData >
                 nodoT<visData>* clicked = findClickedNode(this->raiz);
                 if (clicked == this->raiz && selectedSlot != -1) 
                 {
+                    PlaySound(sfx_insert);
                     nodoS <nodoT <visData>*> *apu = inventory.Extrae(inventory.buscaPos(selectedSlot)); // sus
                     cout << "Insertar Nodo a Raíz: " << apu->dato->dato.val << endl;
                     this->inserta(apu->dato);   // insertar a la raiz 
