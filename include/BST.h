@@ -351,6 +351,7 @@ template < typename X > struct BST
       }
    }
 
+/*
    nodoT<X> *extraeNodo(nodoT<X> *z)
    {
       nodoT<X> *x, *y;
@@ -378,26 +379,90 @@ template < typename X > struct BST
          z->dato = y->dato;
       y->izq = y->der = y->padre = nullptr;
       return y;
-   }   
+   } 
+*/
+
+    nodoT<X>* extraeNodo(nodoT<X>* z)
+    {
+        if (!z) return nullptr;
+
+        nodoT<X>* replacement = nullptr;
+
+        // Case 1: 0 or 1 child
+        if (!z->izq || !z->der)
+        {
+            replacement = (z->izq) ? z->izq : z->der;
+
+            if (replacement)
+                replacement->padre = z->padre;
+
+            if (!z->padre)
+                raiz = replacement;
+            else if (z == z->padre->izq)
+                z->padre->izq = replacement;
+            else
+                z->padre->der = replacement;
+        }
+        else
+    {
+            // Case 2: two children → find successor
+            nodoT<X>* succ = sucesor(z);
+
+            // Remove successor (succ has at most 1 child)
+            nodoT<X>* succReplacement =
+                (succ->izq) ? succ->izq : succ->der;
+
+            if (succReplacement)
+                succReplacement->padre = succ->padre;
+
+            if (succ == succ->padre->izq)
+                succ->padre->izq = succReplacement;
+            else
+                succ->padre->der = succReplacement;
+
+            // Connect successor to z's children
+            succ->izq = z->izq;
+            if (succ->izq) succ->izq->padre = succ;
+
+            succ->der = z->der;
+            if (succ->der) succ->der->padre = succ;
+
+            succ->padre = z->padre;
+
+            if (!z->padre)
+                raiz = succ;
+            else if (z == z->padre->izq)
+                z->padre->izq = succ;
+            else
+                z->padre->der = succ;
+
+            replacement = nullptr; // successor already placed in tree
+        }
+
+        // Cleanly detach z (the node the player clicked)
+        z->padre = z->izq = z->der = nullptr;
+
+        return z;
+    }
 };
 
 template < typename X >
 void imprime(nodoT<X> *r, std::ostream &s)
 {
-   if (!r)
-      return;
-   imprime(r->izq, s);
-   s << r->dato << " ";
-   imprime(r->der, s);
+    if (!r)
+        return;
+    imprime(r->izq, s);
+    s << r->dato << " ";
+    imprime(r->der, s);
 }
 
 template < typename X >
-   std::ostream & operator << (std::ostream & s, BST < X > &t)
+std::ostream & operator << (std::ostream & s, BST < X > &t)
 {
-   s << "raiz->";
-   imprime(t.raiz, s);
-   s << "[]";
-   return s;
+    s << "raiz->";
+    imprime(t.raiz, s);
+    s << "[]";
+    return s;
 }
 
 #endif
