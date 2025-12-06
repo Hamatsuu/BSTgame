@@ -52,6 +52,15 @@ ostream & operator << (ostream & s, visData &v)
 }
 
 
+void BGM ()
+{
+    
+
+}
+
+
+
+
 struct arBonito: public BST< visData >
 {
     int ancho, alto;
