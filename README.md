@@ -340,12 +340,3 @@ Prints BST in-order.
 ```
 
 ---
-
-If you want, I can also generate:
-
-✅ A fully clean `README.md`
-✅ ASCII diagrams of BST operations
-✅ Documentation for nodoT.h
-✅ A minimal wiki-style docs structure
-
-Just tell me.
