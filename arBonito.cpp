@@ -272,11 +272,12 @@ struct arBonito: public BST< visData >
             if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) 
             {
                 nodoT<visData>* clicked = findClickedNode(this->raiz);
-                if (clicked == this->raiz) 
+                if (clicked == this->raiz && selectedSlot != -1) 
                 {
-                    cout << "Insertar Nodo a Raíz: " << clicked->dato.val << endl;
-                    nodoS <nodoT <visData>*> *apu = inventory.Extrae(inventory.buscaPos(selectedSlot));
-                    this->inserta(apu->dato);   // insertar en el inventario
+                    nodoS <nodoT <visData>*> *apu = inventory.Extrae(inventory.buscaPos(selectedSlot)); // sus
+                    cout << "Insertar Nodo a Raíz: " << apu->dato->dato.val << endl;
+                    this->inserta(apu->dato);   // insertar a la raiz 
+                    selectedSlot = -1; // segfault sino
 
                 }
             }
