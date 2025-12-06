@@ -3,14 +3,14 @@
 #include <iostream>
 #include <vector>
 #include <BST.h>
+#include <listaS.h>
 
 using namespace std;
 
 struct visData
 {
     int val;
-    float x, y;
-    float theta, mag;
+    float x, y; float theta, mag;
     int nivel;
     int size;
 
@@ -60,6 +60,7 @@ void BGM ()
 
 
 
+listaS<nodoT<visData>*> inventory;
 
 struct arBonito: public BST< visData >
 {
@@ -115,6 +116,7 @@ struct arBonito: public BST< visData >
         return right;
     }
 
+    //calcular posiciones para el BST
     void computePosition(nodoT <visData> *n, float x, float y, float sep)
     {
         if (!n) return;
@@ -125,7 +127,6 @@ struct arBonito: public BST< visData >
         computePosition(n->izq, x - sep, y + 80, sep / 1.7 );
         computePosition(n->der, x + sep, y + 80, sep / 1.7 );
     }
-
 
     void drawTree(nodoT <visData> *n) {
         if (!n) return;
@@ -152,6 +153,45 @@ struct arBonito: public BST< visData >
         );
     }
 
+    void drawInventory()
+    {
+        const int startX = 1220;  // right side of your 1280 window
+        const int startY = 60;
+        const int spacing = 60;
+        const int invRadius = 25;
+
+        nodoS<nodoT<visData>*> *p = inventory.raiz;
+
+        int i = 0;
+
+        while (p)
+        {
+            nodoT<visData>* n = p->dato;
+
+            float x = startX;
+            float y = startY + i * spacing;
+
+            // draw circle
+            DrawCircleV({x, y}, invRadius, LIGHTGRAY);
+            DrawCircleLines(x, y, invRadius, DARKGRAY);
+
+            // draw value inside
+            DrawText(
+                to_string(n->dato.val).c_str(),
+                x - 13,
+                y - 10,
+                18,
+                BLACK
+            );
+
+            i++;
+            p = p->sig;
+        }
+
+        // optional title
+        DrawText("Inventory:", startX - 50, 10, 20, DARKGRAY);
+    }
+
     void update()
     {
         computePosition(this->raiz, ancho/2, 80,300);
@@ -163,6 +203,7 @@ struct arBonito: public BST< visData >
 
         ClearBackground (RAYWHITE);
         drawTree(this->raiz);
+        drawInventory();
 
         EndDrawing ();
     }
@@ -202,8 +243,8 @@ struct arBonito: public BST< visData >
                 nodoT<visData>* clicked = findClickedNode(this->raiz);
                 if (clicked) 
                 {
-                    cout << "Deleting node: " << clicked->dato.val << endl;
-                    this->extraeNodo(clicked);   // delete by value
+                    cout << "Nodo a Inventario: " << clicked->dato.val << endl;
+                    inventory.pushBack(this->extraeNodo(clicked));   // insertar en el inventario
                 }
             }
 
