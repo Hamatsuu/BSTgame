@@ -163,7 +163,7 @@ struct arBonito: public BST< visData >
 
         nodoS<nodoT<visData>*> *p = inventory.raiz;
 
-        int i = 0;
+        int i = 0; // use for inventory slots 
 
         while (p)
         {
@@ -173,7 +173,15 @@ struct arBonito: public BST< visData >
             float y = startY + i * spacing;
 
             // draw circle
-            DrawCircleV({x, y}, invRadius, LIGHTGRAY);
+            if (selectedSlot == i) 
+            {
+                DrawCircleV({x, y}, invRadius, GOLD);
+
+            } else 
+            {
+                DrawCircleV({x, y}, invRadius, LIGHTGRAY);
+
+            }
             DrawCircleLines(x, y, invRadius, DARKGRAY);
 
             // draw value inside
@@ -196,6 +204,18 @@ struct arBonito: public BST< visData >
     void update()
     {
         computePosition(this->raiz, ancho/2, 80,300);
+        // HANDLE INVENTORY HOTKEYS (1–9)
+        for (int k = 0; k < 9; k++)
+        {
+            if (IsKeyPressed(KEY_ONE + k))  // KEY_ONE..KEY_NINE are consecutive
+            {
+                // Only allow selecting valid slots
+                if (k < (int)inventory.size())   
+                    selectedSlot = k;
+                else
+                    selectedSlot = -1; // invalid slot → deselect
+            }
+        }
     }
 
     void render()
