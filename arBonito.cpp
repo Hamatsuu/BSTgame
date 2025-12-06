@@ -168,15 +168,14 @@ struct arBonito: public BST< visData >
     }
 
     void Loop()
-    {   
+    {
         //Load BGM start
         InitAudioDevice();              // Initialize audio device
-        
+
         Music bgm =LoadMusicStream("assets/main_theme.mp3"); //Balatro bgm
-        
+
         PlayMusicStream(bgm);
 
-        
         float timePlayed = 0.0f;
 
         //Load BGM end
@@ -187,12 +186,12 @@ struct arBonito: public BST< visData >
         // Main loop
         while (!WindowShouldClose ()) // Detect window close button or ESC key
         {
-            
+
             //BGM update start
             UpdateMusicStream(bgm);   // Update music buffer with new stream data
 
             timePlayed = GetMusicTimePlayed(bgm)/GetMusicTimeLength(bgm);
-            
+
             if (timePlayed > 1.0f) timePlayed = 1.0f;
 
             //BGM update end
@@ -247,6 +246,6 @@ int main (int argc, char **argv)
     cout << endl;
 
     V.Loop ();
-    //hola git helo mundo
+
     return 0;
 }
