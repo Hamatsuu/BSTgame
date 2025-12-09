@@ -4,6 +4,7 @@
 #include <vector>
 #include <BST.h>
 #include <listaS.h>
+#include <string>
 
 using namespace std;
 
@@ -87,10 +88,7 @@ struct arBonito: public BST< visData >
         cY = alto / 2;
     }
 
-    ~arBonito ()
-    {
-        CloseWindow ();
-    }
+    ~arBonito ()=default;
     // Check if mouse click is inside the circle of a node
     bool isNodeClicked(nodoT<visData>* n) {
         if (!n) return false;
@@ -244,21 +242,16 @@ struct arBonito: public BST< visData >
     void Loop()
     {
         //Load BGM start
-        InitAudioDevice();              // Initialize audio device
+        Music bgm =LoadMusicStream("assets/tracks/main_theme.mp3"); //Balatro bgm
 
-        Music bgm =LoadMusicStream("assets/main_theme.mp3"); //Balatro bgm
-
-        Sound sfx_extract = LoadSound("assets/cardSlide1.ogg");
-        Sound sfx_insert = LoadSound("assets/chips2.ogg");
+        Sound sfx_extract = LoadSound("assets/sfx/cardSlide1.ogg");
+        Sound sfx_insert = LoadSound("assets/sfx/chips2.ogg");
 
         PlayMusicStream(bgm);
 
         float timePlayed = 0.0f;
 
         //Load BGM end
-
-        InitWindow (ancho, alto, "ArBonito");
-        SetTargetFPS (60);
 
         // Main loop
         while (!WindowShouldClose ()) // Detect window close button or ESC key
@@ -328,14 +321,138 @@ struct arBonito: public BST< visData >
     }
 };
 
+//We take it all out of the main to make it global so its easier to access it from the Title function
+int i, N = 16;
+long semilla = 0;
+int ancho = 1280, alto = 1024;
+BST<visData> Basura;
+arBonito V(ancho, alto, &Basura);
+
+
+//Main title function start
+void Title()
+{
+    Texture2D controls = LoadTexture("assets/controls(1).png");        // Controls loading
+    bool title = true;
+
+    int seed = 0;
+    int maxSeed = 999999;
+    
+    float boxWidth =250;
+    float boxHeight =50;
+
+    Rectangle inputBox ={ancho  / 2 - boxWidth  / 2, alto / 2 - boxHeight / 2, boxWidth, boxHeight};
+    Rectangle startButton = {ancho/2 - 150.00/2, (alto/2 - boxHeight/2) + boxHeight + 20,150,50};
+    
+    bool inputFocused = false;
+    
+     
+    Music bgm =LoadMusicStream("assets/tracks/title_screen.mp3"); //Balatro bgm
+    PlayMusicStream(bgm);
+    float timePlayed =0.0f;
+
+    while (!WindowShouldClose()) {
+       
+
+        UpdateMusicStream(bgm);   // Update music buffer with new stream data
+
+        timePlayed = GetMusicTimePlayed(bgm)/GetMusicTimeLength(bgm);
+
+        if (timePlayed > 1.0f) timePlayed = 1.0f;
+
+        if (title) {
+
+            // Mouse detector
+            if (CheckCollisionPointRec(GetMousePosition(), inputBox)) {
+                if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                    inputFocused = true;
+                }
+            } else if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                inputFocused = false;
+            }
+
+
+            if (inputFocused) {
+                int key = GetCharPressed();
+                while (key > 0) {
+                    if (key >= '0' && key <= '9') {
+                        int digit = key - '0';
+                        int newSeed = seed * 10 + digit;
+                        if (newSeed <= maxSeed) {
+                            seed = newSeed;
+                        }
+                    }
+                    key = GetCharPressed();
+                }
+
+                // Backspace
+                if (IsKeyPressed(KEY_BACKSPACE)) {
+                    seed /= 10;
+                }
+            }
+            const char* charSeed = to_string(seed).c_str();
+            
+            // --- START BUTTON ---
+            if (CheckCollisionPointRec(GetMousePosition(), startButton) &&
+                IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+
+                // Convert seed to unsigned int or generate one if blank
+                if (seed) {
+                    semilla=seed;
+                } else {
+                    semilla = GetRandomValue(0, 999999);
+                }
+
+                title = false;
+            }
+            
+            // ---------- DRAW ----------
+            BeginDrawing();
+            ClearBackground(RAYWHITE);
+
+            DrawText("Arbolatro", 550, 80, 40, DARKBLUE);
+
+            // Draw input box
+            DrawRectangleRec(inputBox, LIGHTGRAY);
+            DrawRectangleLinesEx(inputBox, 2, GRAY);
+            
+            if(!inputFocused)
+                DrawText("Leave empty for random seed", inputBox.x + 10, inputBox.y + 8, 20, BLACK);
+            else
+            {
+                DrawText(charSeed,  inputBox.x + 10, inputBox.y + 8, 20, BLACK);
+            }
+            if (inputFocused)
+                DrawText("Type seed...", inputBox.x, inputBox.y - 20, 20, DARKGRAY);
+
+            // Draw Start button
+            DrawRectangleRec(startButton, SKYBLUE);
+            DrawRectangleLinesEx(startButton, 2, BLUE);
+            DrawText("Start", startButton.x + 45, startButton.y + 15, 20, DARKBLUE);
+
+
+            DrawTexture(controls,ancho-controls.width, alto-controls.height,WHITE);
+        }
+
+        else if (!title) {
+            break;
+        }
+
+        EndDrawing();
+    
+    }
+}
+//Main title function end
+
+
+//main function for real
 int main (int argc, char **argv)
 {
-    int i, N = 16;
-    long semilla = 0;
-    int ancho = 1280, alto = 1024;
-    BST<visData> Basura;
-    arBonito V(ancho, alto, &Basura);
-
+    InitAudioDevice(); //Audio device
+    InitWindow(ancho,alto, "Arbonito");
+    SetTargetFPS(60);
+    
+    Title();
     if (argc > 1)
         N = atoi (argv[1]);
     if (argc > 2)
