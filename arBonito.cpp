@@ -55,6 +55,7 @@ ostream & operator << (ostream & s, visData &v)
 
 listaS<nodoT<visData>*> inventory;
 int selectedSlot = -1; 
+const int MAX_SLOTS = 4;
 
 //camera offset for dragging
 Vector2 cameraOffset = {0, 0};
@@ -267,7 +268,7 @@ struct arBonito: public BST< visData >
             //BGM update end
 
             // Click izq for removing the node from the BST 
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) 
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && inventory.size() <= MAX_SLOTS - 1) 
             {   
 
                 nodoT<visData>* clicked = findClickedNode(this->raiz);
@@ -280,21 +281,6 @@ struct arBonito: public BST< visData >
                 {
                     dragging = true;
                     lastMousePos = GetMousePosition();
-                }
-            }
-
-            // Click der for putting it back in the root
-            if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) 
-            {
-                nodoT<visData>* clicked = findClickedNode(this->raiz);
-                if (clicked == this->raiz && selectedSlot != -1) 
-                {
-                    PlaySound(sfx_insert);
-                    nodoS <nodoT <visData>*> *apu = inventory.Extrae(inventory.buscaPos(selectedSlot)); // sus
-                    cout << "Insert node to root node: " << apu->dato->dato.val << endl;
-                    this->inserta(apu->dato);   // insertar a la raiz 
-                    selectedSlot = -1; // segfault sino
-
                 }
             }
 
@@ -312,7 +298,23 @@ struct arBonito: public BST< visData >
                 lastMousePos = mouse;
             }
 
-            //Update
+            // Click der for putting it back in the root
+            if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) 
+            {
+                nodoT<visData>* clicked = findClickedNode(this->raiz);
+                if (clicked == this->raiz && selectedSlot != -1) 
+                {
+                    PlaySound(sfx_insert);
+                    nodoS <nodoT <visData>*> *apu = inventory.Extrae(inventory.buscaPos(selectedSlot)); // sus
+                    cout << "Insert node to root node: " << apu->dato->dato.val << endl;
+                    this->inserta(apu->dato);   // insertar a la raiz 
+                    selectedSlot = -1; // segfault sino
+                    if (inventory.size() == 0) 
+                        cout << "El arbol es balanceado y/n: " << balanceado(this->raiz) << endl;
+
+                }
+            }
+            //Update 
             update ();
 
             //Draw;
