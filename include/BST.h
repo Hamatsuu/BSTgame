@@ -8,378 +8,399 @@
 
 template < typename X > struct BST
 {
-   nodoT < X > *raiz;
-   BST < X > *trash;         //trash -> basura en ingles.
+    nodoT < X > *raiz;
+    BST < X > *trash;         //trash -> basura en ingles.
 
-   BST()
-   {
-      raiz = nullptr;
-      trash = nullptr;
-   }
+    BST()
+    {
+        raiz = nullptr;
+        trash = nullptr;
+    }
 
-   BST (BST < X > *T)
-   {
-      raiz = nullptr;
-      trash = T;
-   }
+    BST (BST < X > *T)
+    {
+        raiz = nullptr;
+        trash = T;
+    }
 
-   BST (const BST < X > &L)
-   {
-      raiz = nullptr;
-      trash = nullptr;
-      *this = L;
-   }
+    BST (const BST < X > &L)
+    {
+        raiz = nullptr;
+        trash = nullptr;
+        *this = L;
+    }
 
-   ~BST ()
-   {
-      borraArbol ();
-   }
+    ~BST ()
+    {
+        borraArbol ();
+    }
 
-   void copia (const BST < X > &l)
-   {
-      if (raiz != nullptr) 
-         borraArbol();
+    void copia (const BST < X > &l)
+    {
+        if (raiz != nullptr) 
+            borraArbol();
 
-      _copia(l.raiz);
-   }
+        _copia(l.raiz);
+    }
 
-   void _copia(nodoT<X> *r)
-   {
-      if (r == nullptr)
-         return;
-      inserta(r->dato);
-      _copia(r->izq);
-      _copia(r->der);
-   }
+    void _copia(nodoT<X> *r)
+    {
+        if (r == nullptr)
+            return;
+        inserta(r->dato);
+        _copia(r->izq);
+        _copia(r->der);
+    }
 
-   BST < X > &operator = (const BST < X > &l)
-   {
-      copia(l);
-      return *this;
-   }
+    BST < X > &operator = (const BST < X > &l)
+    {
+        copia(l);
+        return *this;
+    }
 
-   void borraArbol ()
-   {
-      _borraArbol(raiz);
-      raiz = nullptr;
-   }
+    void borraArbol ()
+    {
+        _borraArbol(raiz);
+        raiz = nullptr;
+    }
 
-   void _borraArbol(nodoT<X> *r)
-   {
-      if (r == nullptr)
-         return;
-      _borraArbol(r->izq);
-      _borraArbol(r->der);
-      borraNodo(r);
-   }
+    void _borraArbol(nodoT<X> *r)
+    {
+        if (r == nullptr)
+            return;
+        _borraArbol(r->izq);
+        _borraArbol(r->der);
+        borraNodo(r);
+    }
 
-   void borraNodo (nodoT < X > *n)
-   {
-      if (n == nullptr)
-         return;
-      n = extraeNodo(n); //Desconectamos al nodo n del árbol.
-      if (trash != 0)
-      {  
-         n->der = trash->raiz;
-         trash->raiz = n;
-      }
-      else
-         delete n;
-   }
+    void borraNodo (nodoT < X > *n)
+    {
+        if (n == nullptr)
+            return;
+        n = extraeNodo(n); //Desconectamos al nodo n del árbol.
+        if (trash != 0)
+        {  
+            n->der = trash->raiz;
+            trash->raiz = n;
+        }
+        else
+        delete n;
+    }
 
-   nodoT < X > *creaNodo (const X & d)
-   {
-      nodoT < X > *n;
+    nodoT < X > *creaNodo (const X & d)
+    {
+        nodoT < X > *n;
 
-      if (trash != nullptr && trash->raiz != nullptr)
-      {
-         n = trash->raiz;
-         trash->raiz = trash->raiz->der;
-         n->izq = n->der = n->padre = nullptr;
-         n->dato = d;
-      }
-      else
-         n = new nodoT < X > (d);
-      return n;
-   }
+        if (trash != nullptr && trash->raiz != nullptr)
+        {
+            n = trash->raiz;
+            trash->raiz = trash->raiz->der;
+            n->izq = n->der = n->padre = nullptr;
+            n->dato = d;
+        }
+        else
+        n = new nodoT < X > (d);
+        return n;
+    }
 
-   void inserta(nodoT<X> *n)
-   {
-      nodoT<X> *x, *y;
+    void inserta(nodoT<X> *n)
+    {
+        nodoT<X> *x, *y;
 
-      if (n == nullptr)
-         return;
-      if (raiz == nullptr)
-      {
-         raiz = n;
-         return;
-      }
-      x = raiz;
-      y = nullptr;
-      while (x != nullptr)
-      {
-         y = x;
-         if (n->dato < x->dato)
-            x = x->izq;
-         else
-            x = x->der;
-      }
-      if (n->dato < y->dato)
+        if (n == nullptr)
+            return;
+        if (raiz == nullptr)
+        {
+            raiz = n;
+            return;
+        }
+        x = raiz;
+        y = nullptr;
+        while (x != nullptr)
+        {
+            y = x;
+            if (n->dato < x->dato)
+                x = x->izq;
+            else
+                x = x->der;
+        }
+        if (n->dato < y->dato)
             y->izq = n;
-         else
+        else
             y->der = n;
-      n->padre = y;
-   }
+        n->padre = y;
+    }
 
-   void inserta(X &d)
-   {
-      nodoT<X> *n;
+    void inserta(X &d)
+    {
+        nodoT<X> *n;
 
-      n = creaNodo(d);
-      if (n != nullptr)
-         inserta(n);
-   }
+        n = creaNodo(d);
+        if (n != nullptr)
+            inserta(n);
+    }
 
-   nodoT<X> *busca(X &val)
-   {
-      nodoT<X> *apu = raiz;
+    nodoT<X> *busca(X &val)
+    {
+        nodoT<X> *apu = raiz;
 
-      while (apu != nullptr)
-      {
-         if (apu->dato == val)
-            return apu;
-         if (val < apu->dato)
+        while (apu != nullptr)
+        {
+            if (apu->dato == val)
+                return apu;
+            if (val < apu->dato)
+                apu = apu->izq;
+            else
+                apu = apu->der;
+        }
+        return nullptr;
+    }
+
+    //Recorrido de árboles
+    void inorder() {
+        _inorder(raiz);
+    }
+
+    void _inorder(nodoT<X> *r)
+    {
+        if (r == nullptr)
+            return;
+        _inorder(r->izq);
+        std::cout << r->dato << " ";
+        _inorder(r->der);
+    }
+
+    void inorderInverso()
+    {
+        _inorderInverso(raiz);
+    }
+
+    void _inorderInverso(nodoT<X> *r)
+    {
+        if (r == nullptr)
+            return;
+        _inorderInverso(r->der);
+        std::cout << r->dato << " ";
+        _inorderInverso(r->izq);
+    }
+
+    void preorder()
+    {
+        _preorder(raiz);
+    }
+
+    void _preorder(nodoT<X> *r)
+    {
+        if (r == nullptr)
+            return;
+        std::cout << r->dato << " ";
+        _preorder(r->izq);
+        _preorder(r->der);
+    }
+
+    void posorder()
+    {
+        _posorder(raiz);
+    }
+
+    void _posorder(nodoT<X> *r)
+    {
+        if (r == nullptr)
+            return;
+        _posorder(r->izq);      
+        _posorder(r->der);
+        std::cout << r->dato << " ";
+    }
+
+
+    nodoT<X> *min()
+    {
+        nodoT<X> *apu = raiz;
+
+        if (raiz == nullptr)
+            return nullptr;
+
+        while(apu->izq)
             apu = apu->izq;
-         else
+        return apu;
+    }
+
+    nodoT<X> *max()
+    {
+        nodoT<X> *apu = raiz;
+
+        if (raiz == nullptr)
+            return nullptr;
+
+        while(apu->der)
             apu = apu->der;
-      }
-      return nullptr;
-   }
+        return apu;
+    }
 
-   //Recorrido de árboles
-   void inorder()
-   {
-      _inorder(raiz);
-   }
+    nodoT<X> *min(nodoT<X> *apu)
+    {
+        if (apu == nullptr)
+            return nullptr;
 
-   void _inorder(nodoT<X> *r)
-   {
-      if (r == nullptr)
-         return;
-      _inorder(r->izq);
-      std::cout << r->dato << " ";
-      _inorder(r->der);
-   }
+        while(apu->izq)
+            apu = apu->izq;
+        return apu;
+    }
 
-   void inorderInverso()
-   {
-      _inorderInverso(raiz);
-   }
+    nodoT<X> *max(nodoT<X> *apu)
+    {
+        if (apu == nullptr)
+            return nullptr;
 
-   void _inorderInverso(nodoT<X> *r)
-   {
-      if (r == nullptr)
-         return;
-      _inorderInverso(r->der);
-      std::cout << r->dato << " ";
-      _inorderInverso(r->izq);
-   }
+        while(apu->der)
+            apu = apu->der;
+        return apu;
 
-   void preorder()
-   {
-      _preorder(raiz);
-   }
+    }
 
-   void _preorder(nodoT<X> *r)
-   {
-      if (r == nullptr)
-         return;
-      std::cout << r->dato << " ";
-      _preorder(r->izq);
-      _preorder(r->der);
-   }
+    nodoT<X> *minR()
+    {
+        if (!raiz) return nullptr;
+        return _minR(raiz);
+    }
 
-   void posorder()
-   {
-      _posorder(raiz);
-   }
+    nodoT<X> *_minR(nodoT<X> *r)
+    {
+        if (r->izq == nullptr)
+            return r;
+        else
+            return _minR(r->izq);
+    }
 
-   void _posorder(nodoT<X> *r)
-   {
-      if (r == nullptr)
-         return;
-      _posorder(r->izq);      
-      _posorder(r->der);
-      std::cout << r->dato << " ";
-   }
+    nodoT<X> *maxR()
+    {
+        if (!raiz) return nullptr;
+        return _maxR(raiz);
+    }
 
+    nodoT<X> *_maxR(nodoT<X> *r)
+    {
+        if (r->der == nullptr)
+            return r;
+        else
+            return _maxR(r->der);
+    }
 
-   nodoT<X> *min()
-   {
-      nodoT<X> *apu = raiz;
+    nodoT<X> *sucesor(nodoT<X> *apu)
+    {
+        nodoT<X> *x, *y;
 
-      if (raiz == nullptr)
-         return nullptr;
+        if (apu == nullptr)
+            return nullptr;
 
-      while(apu->izq)
-         apu = apu->izq;
-      return apu;
-   }
+        if (apu->der != nullptr)
+            return min(apu->der);
 
-   nodoT<X> *max()
-   {
-      nodoT<X> *apu = raiz;
+        x = apu;
+        y = apu->padre;
+        while (y != nullptr && y->der == x)
+        {
+            x=y;
+            y=y->padre;
+        }
+        return y;
+    }
 
-      if (raiz == nullptr)
-         return nullptr;
+    nodoT<X> *predecesor(nodoT<X> *apu)
+    {
+        nodoT<X> *x, *y;
 
-      while(apu->der)
-         apu = apu->der;
-      return apu;
-   }
+        if (apu == nullptr)
+            return nullptr;
 
-   nodoT<X> *min(nodoT<X> *apu)
-   {
-      if (apu == nullptr)
-         return nullptr;
+        if (apu->izq != nullptr)
+            return max(apu->izq);
 
-      while(apu->izq)
-         apu = apu->izq;
-      return apu;
-   }
+        x = apu;
+        y = apu->padre;
+        while (y != nullptr && y->izq == x)
+        {
+            x=y;
+            y=y->padre;
+        }
+        return y;
+    }
 
-   nodoT<X> *max(nodoT<X> *apu)
-   {
-      if (apu == nullptr)
-         return nullptr;
+    void recorridoIterativo()
+    {
+        nodoT<X> *apu;
 
-      while(apu->der)
-         apu = apu->der;
-      return apu;
-      
-   }
+        apu = min();
+        while (apu != nullptr)
+        {
+            std::cout << apu->dato << " ";
+            apu = sucesor(apu);
+        }
+    }
 
-   nodoT<X> *minR()
-   {
-      if (!raiz) return nullptr;
-      return _minR(raiz);
-   }
+    void recorridoIterativoInverso()
+    {
+        nodoT<X> *apu;
 
-   nodoT<X> *_minR(nodoT<X> *r)
-   {
-      if (r->izq == nullptr)
-         return r;
-       else
-         return _minR(r->izq);
-   }
+        apu = max();
+        while (apu != nullptr)
+        {
+            std::cout << apu->dato << " ";
+            apu = predecesor(apu);
+        }
+    }
 
-   nodoT<X> *maxR()
-   {
-      if (!raiz) return nullptr;
-      return _maxR(raiz);
-   }
+    int _balanceado(nodoT<X> *raiz) 
+    {
 
-   nodoT<X> *_maxR(nodoT<X> *r)
-   {
-      if (r->der == nullptr)
-         return r;
-       else
-         return _maxR(r->der);
-   }
+        if (raiz == NULL)
+            return 0;
 
-   nodoT<X> *sucesor(nodoT<X> *apu)
-   {
-      nodoT<X> *x, *y;
+        // Find Heights of left and right sub trees
+        int lNivel = _balanceado(raiz->izq);
+        int rNivel = _balanceado(raiz->der);
 
-      if (apu == nullptr)
-         return nullptr;
+        // If either the subtrees are unbalanced or the absolute difference  
+        // of their niveles is greater than 1, return -1
+        if (lNivel == -1 || rNivel == -1 || abs(lNivel - rNivel ) > 1)
+            return -1;
 
-      if (apu->der != nullptr)
-         return min(apu->der);
+        return std::max(lNivel, rNivel) + 1;
+    }
 
-      x = apu;
-      y = apu->padre;
-      while (y != nullptr && y->der == x)
-      {
-         x=y;
-         y=y->padre;
-      }
-      return y;
-   }
+    // Function to check if tree is height balanced
+    bool balanceado(nodoT<X> *raiz) {
+        return (_balanceado(raiz) > 0);
+    }
+    /*
+    nodoT<X> *extraeNodo(nodoT<X> *z)
+    {
+        nodoT<X> *x, *y;
 
-   nodoT<X> *predecesor(nodoT<X> *apu)
-   {
-      nodoT<X> *x, *y;
-
-      if (apu == nullptr)
-         return nullptr;
-
-      if (apu->izq != nullptr)
-         return max(apu->izq);
-
-      x = apu;
-      y = apu->padre;
-      while (y != nullptr && y->izq == x)
-      {
-         x=y;
-         y=y->padre;
-      }
-      return y;
-   }
-
-   void recorridoIterativo()
-   {
-      nodoT<X> *apu;
-
-      apu = min();
-      while (apu != nullptr)
-      {
-         std::cout << apu->dato << " ";
-         apu = sucesor(apu);
-      }
-   }
-
-   void recorridoIterativoInverso()
-   {
-      nodoT<X> *apu;
-
-      apu = max();
-      while (apu != nullptr)
-      {
-         std::cout << apu->dato << " ";
-         apu = predecesor(apu);
-      }
-   }
-
-/*
-   nodoT<X> *extraeNodo(nodoT<X> *z)
-   {
-      nodoT<X> *x, *y;
-
-      if (z->izq == nullptr || z->der == nullptr)
-         y = z;
-      else
-         y = sucesor(z);
-      if (y->izq != nullptr)
-         x = y->izq;
-      else
-         x = y->der;
-      if (x != nullptr)
-         x->padre = y->padre;
-      if (y->padre == nullptr)
-         raiz = x;
-      else
-      {
-         if (y == y->padre->izq)
-            y->padre->izq = x;
-         else
-            y->padre->der = x;
-      }
-      if (y != z)
-         z->dato = y->dato;
-      y->izq = y->der = y->padre = nullptr;
-      return y;
-   } 
+        if (z->izq == nullptr || z->der == nullptr)
+           y = z;
+        else
+           y = sucesor(z);
+        if (y->izq != nullptr)
+           x = y->izq;
+        else
+           x = y->der;
+        if (x != nullptr)
+           x->padre = y->padre;
+        if (y->padre == nullptr)
+           raiz = x;
+        else
+        {
+           if (y == y->padre->izq)
+              y->padre->izq = x;
+           else
+              y->padre->der = x;
+        }
+        if (y != z)
+           z->dato = y->dato;
+        y->izq = y->der = y->padre = nullptr;
+        return y;
+    } 
 */
 
     nodoT<X>* extraeNodo(nodoT<X>* z)
