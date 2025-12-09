@@ -4,7 +4,7 @@
 #include <vector>
 #include <BST.h>
 #include <listaS.h>
-#include <string> 
+#include <string>
 
 using namespace std;
 
@@ -55,6 +55,11 @@ ostream & operator << (ostream & s, visData &v)
 
 listaS<nodoT<visData>*> inventory;
 int selectedSlot = -1; 
+
+//camera offset for dragging
+Vector2 cameraOffset = {0, 0};
+Vector2 lastMousePos = {0, 0};
+bool dragging = false;
 
 struct arBonito: public BST< visData >
 {
@@ -107,13 +112,17 @@ struct arBonito: public BST< visData >
         return right;
     }
 
-    //calcular posiciones para el BST
+    // Recursively calculate positions for the BST
     void computePosition(nodoT <visData> *n, float x, float y, float sep)
     {
         if (!n) return;
 
-        n->dato.x = x;
-        n->dato.y = y;
+        n->dato.x = x + cameraOffset.x;
+        n->dato.y = y + cameraOffset.y;
+
+        // Shift positions by camera offset
+        //float newx = n->dato.x + cameraOffset.x;
+        //float newy = n->dato.y + cameraOffset.y;
 
         computePosition(n->izq, x - sep, y + 80, sep / 1.7 );
         computePosition(n->der, x + sep, y + 80, sep / 1.7 );
@@ -121,6 +130,7 @@ struct arBonito: public BST< visData >
 
     void drawTree(nodoT <visData> *n) {
         if (!n) return;
+
 
         // Draw edges first
         if (n->izq) 
@@ -135,75 +145,85 @@ struct arBonito: public BST< visData >
         DrawCircleV({n->dato.x, n->dato.y}, nodeRadius, SKYBLUE);
         DrawCircleLines(n->dato.x, n->dato.y, nodeRadius, DARKBLUE);
 
+        string s = to_string(n->dato.val);
+        int fontSize = 20;
+        int textWidth = MeasureText(s.c_str(), fontSize);
+        int textHeight = fontSize; // approximation
         DrawText(
-            to_string(n->dato.val).c_str(),
-            n->dato.x - 10,
-            n->dato.y - 10,
-            20,
+            s.c_str(),
+            n->dato.x - textWidth / 2,
+            n->dato.y - textHeight / 2,
+            fontSize,
             BLACK
         );
     }
 
     void drawInventory()
     {
-        const int startX = 1220;  // right side of your 1280 window
+        const int startX = ancho - 80;  // locked a ancho - offset 
         const int startY = 60;
         const int spacing = 60;
-        const int invRadius = 25;
+        const int invRadius = 22;
 
         nodoS<nodoT<visData>*> *p = inventory.raiz;
 
-        int i = 0; // use for inventory slots 
+        int i = 0; // keep track of selected slot
 
-        while (p)
+        DrawText("Inventory:", startX - 50, 10, 20, DARKGRAY);
+
+        while (p) // break p->sig = nullptr
         {
             nodoT<visData>* n = p->dato;
 
+            // Not using visData x y, since its a simply linked list.
+            // keeping track of each nodes pos and updating seemed cumbersome
             float x = startX;
             float y = startY + i * spacing;
 
-            // draw circle
+            // Draw node 
             if (selectedSlot == i) 
             {
                 DrawCircleV({x, y}, invRadius, GOLD);
 
             } else 
-            {
+        {
                 DrawCircleV({x, y}, invRadius, LIGHTGRAY);
 
             }
             DrawCircleLines(x, y, invRadius, DARKGRAY);
 
-            // draw value inside
+            // Node value 
+
+            string s = to_string(n->dato.val);
+            int fontSize = 20;
+            int textWidth = MeasureText(s.c_str(), fontSize);
+            int textHeight = fontSize; // approximation
             DrawText(
-                to_string(n->dato.val).c_str(),
-                x - 13,
-                y - 10,
-                18,
+                s.c_str(),
+                x - textWidth / 2,
+                y - textHeight / 2,
+                fontSize,
                 BLACK
             );
-
             i++;
             p = p->sig;
         }
 
-        // optional title
-        DrawText("Inventory:", startX - 50, 10, 20, DARKGRAY);
     }
 
     void update()
     {
         computePosition(this->raiz, ancho/2, 80,300);
-        // HANDLE INVENTORY HOTKEYS (1–9)
+        // Inventory hotkeys (1–9)
         for (int k = 0; k < 9; k++)
         {
             if (IsKeyPressed(KEY_ONE + k))  // KEY_ONE..KEY_NINE are consecutive
             {
-                // Only allow selecting valid slots
+                // Valid slots check
                 if (k < (int)inventory.size())   
                     selectedSlot = k;
                 else
-                    selectedSlot = -1; // invalid slot → deselect
+                    selectedSlot = -1; // invalid slot
             }
         }
     }
@@ -221,16 +241,17 @@ struct arBonito: public BST< visData >
 
     void Loop()
     {
+        //Load BGM start
+        Music bgm =LoadMusicStream("assets/tracks/main_theme.mp3"); //Balatro bgm
+
         Sound sfx_extract = LoadSound("assets/sfx/cardSlide1.ogg");
         Sound sfx_insert = LoadSound("assets/sfx/chips2.ogg");
-        
-        
-        Music bgm =LoadMusicStream("assets/tracks/main_theme.mp3"); //Balatro bgm
+
         PlayMusicStream(bgm);
 
         float timePlayed = 0.0f;
 
-
+        //Load BGM end
 
         // Main loop
         while (!WindowShouldClose ()) // Detect window close button or ESC key
@@ -245,7 +266,7 @@ struct arBonito: public BST< visData >
 
             //BGM update end
 
-            // --- CLICK TO DELETE NODE ---
+            // Click izq for removing the node from the BST 
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) 
             {   
 
@@ -253,11 +274,16 @@ struct arBonito: public BST< visData >
                 if (clicked) 
                 {
                     PlaySound(sfx_extract);
-                    cout << "Nodo a Inventario: " << clicked->dato.val << endl;
+                    cout << "Push node to inventory: " << clicked->dato.val << endl;
                     inventory.pushBack(this->extraeNodo(clicked));   // insertar en el inventario
+                } else 
+                {
+                    dragging = true;
+                    lastMousePos = GetMousePosition();
                 }
             }
 
+            // Click der for putting it back in the root
             if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) 
             {
                 nodoT<visData>* clicked = findClickedNode(this->raiz);
@@ -265,11 +291,25 @@ struct arBonito: public BST< visData >
                 {
                     PlaySound(sfx_insert);
                     nodoS <nodoT <visData>*> *apu = inventory.Extrae(inventory.buscaPos(selectedSlot)); // sus
-                    cout << "Insertar Nodo a Raíz: " << apu->dato->dato.val << endl;
+                    cout << "Insert node to root node: " << apu->dato->dato.val << endl;
                     this->inserta(apu->dato);   // insertar a la raiz 
                     selectedSlot = -1; // segfault sino
 
                 }
+            }
+
+            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+                dragging = false;
+            }
+
+            if (dragging) {
+                Vector2 mouse = GetMousePosition();
+                Vector2 delta = { mouse.x - lastMousePos.x, mouse.y - lastMousePos.y };
+
+                cameraOffset.x += delta.x;
+                cameraOffset.y += delta.y;
+
+                lastMousePos = mouse;
             }
 
             //Update
@@ -281,17 +321,18 @@ struct arBonito: public BST< visData >
     }
 };
 
-//Los volvi globales para conveniencia del plot 
-int ancho = 1280, alto = 1024;
+//We take it all out of the main to make it global so its easier to access it from the Title function
 int i, N = 16;
 long semilla = 0;
+int ancho = 1280, alto = 1024;
 BST<visData> Basura;
 arBonito V(ancho, alto, &Basura);
 
 
+//Main title function start
 void Title()
 {
-    Texture2D controls = LoadTexture("assets/controls(1).png");        // Instructions loading
+    Texture2D controls = LoadTexture("assets/controls(1).png");        // Controls loading
     bool title = true;
 
     int seed = 0;
@@ -300,7 +341,7 @@ void Title()
     float boxWidth =250;
     float boxHeight =50;
 
-    Rectangle inputBox ={ancho  / 2 - boxWidth  / 2,alto / 2 - boxHeight / 2,boxWidth,boxHeight};
+    Rectangle inputBox ={ancho  / 2 - boxWidth  / 2, alto / 2 - boxHeight / 2, boxWidth, boxHeight};
     Rectangle startButton = {ancho/2 - 150.00/2, (alto/2 - boxHeight/2) + boxHeight + 20,150,50};
     
     bool inputFocused = false;
@@ -310,11 +351,10 @@ void Title()
     PlayMusicStream(bgm);
     float timePlayed =0.0f;
 
-
     while (!WindowShouldClose()) {
        
 
-        UpdateMusicStream(bgm);
+        UpdateMusicStream(bgm);   // Update music buffer with new stream data
 
         timePlayed = GetMusicTimePlayed(bgm)/GetMusicTimeLength(bgm);
 
@@ -322,7 +362,7 @@ void Title()
 
         if (title) {
 
-            // Checa la collision del cursor con las boxes
+            // Mouse detector
             if (CheckCollisionPointRec(GetMousePosition(), inputBox)) {
                 if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                     inputFocused = true;
@@ -350,8 +390,6 @@ void Title()
                     seed /= 10;
                 }
             }
-
-            //Necesito la seed como const char* para displayearla en la box
             const char* charSeed = to_string(seed).c_str();
             
             // --- START BUTTON ---
@@ -367,7 +405,7 @@ void Title()
 
                 title = false;
             }
-
+            
             // ---------- DRAW ----------
             BeginDrawing();
             ClearBackground(RAYWHITE);
@@ -404,23 +442,24 @@ void Title()
     
     }
 }
+//Main title function end
+
+
+//main function for real
 int main (int argc, char **argv)
 {
-     
-    //Load BGM start
-    InitAudioDevice();              // Initialize audio device
-    InitWindow (ancho, alto, "ArBonito");
-        SetTargetFPS(60);
+    InitAudioDevice(); //Audio device
+    InitWindow(ancho,alto, "Arbonito");
+    SetTargetFPS(60);
     
     Title();
-    
     if (argc > 1)
         N = atoi (argv[1]);
     if (argc > 2)
         semilla = atol (argv[2]);
 
     cout << endl
-        << "Se inicializó el generador de número aleatorios con "
+        << "Initialized random number generator with seed: "
         << semilla << endl << endl;
 
     //Llenamos el árbol
@@ -431,7 +470,7 @@ int main (int argc, char **argv)
         visData val ((int) (lrand48 () % 1000));
 
         V.inserta (val);
-        cout << "Insertamos el valor " << val << " al árbol." << endl;
+        cout << "Insert value " << val << " to the BST." << endl;
     }
     cout << endl;
 
