@@ -281,6 +281,7 @@ struct arBonito: public BST< visData >
     }
 };
 
+//Los volvi globales para conveniencia del plot 
 int ancho = 1280, alto = 1024;
 int i, N = 16;
 long semilla = 0;
@@ -290,7 +291,7 @@ arBonito V(ancho, alto, &Basura);
 
 void Title()
 {
-    Texture2D controls = LoadTexture("assets/controls(1).png");        // Controls loading
+    Texture2D controls = LoadTexture("assets/controls(1).png");        // Instructions loading
     bool title = true;
 
     int seed = 0;
@@ -299,25 +300,21 @@ void Title()
     float boxWidth =250;
     float boxHeight =50;
 
-    Rectangle inputBox ={ancho  / 2 - boxWidth  / 2,   // centered X
-                        alto / 2 - boxHeight / 2,   // centered Y
-                        boxWidth,
-                        boxHeight
-    };
+    Rectangle inputBox ={ancho  / 2 - boxWidth  / 2,alto / 2 - boxHeight / 2,boxWidth,boxHeight};
     Rectangle startButton = {ancho/2 - 150.00/2, (alto/2 - boxHeight/2) + boxHeight + 20,150,50};
     
     bool inputFocused = false;
     
      
-        Music bgm =LoadMusicStream("assets/tracks/title_screen.mp3"); //Balatro bgm
-        PlayMusicStream(bgm);
-        float timePlayed =0.0f;
+    Music bgm =LoadMusicStream("assets/tracks/title_screen.mp3"); //Balatro bgm
+    PlayMusicStream(bgm);
+    float timePlayed =0.0f;
 
 
     while (!WindowShouldClose()) {
        
 
-        UpdateMusicStream(bgm);   // Update music buffer with new stream data
+        UpdateMusicStream(bgm);
 
         timePlayed = GetMusicTimePlayed(bgm)/GetMusicTimeLength(bgm);
 
@@ -325,7 +322,7 @@ void Title()
 
         if (title) {
 
-            // --- INPUT HANDLING ---
+            // Checa la collision del cursor con las boxes
             if (CheckCollisionPointRec(GetMousePosition(), inputBox)) {
                 if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
                     inputFocused = true;
@@ -353,7 +350,10 @@ void Title()
                     seed /= 10;
                 }
             }
+
+            //Necesito la seed como const char* para displayearla en la box
             const char* charSeed = to_string(seed).c_str();
+            
             // --- START BUTTON ---
             if (CheckCollisionPointRec(GetMousePosition(), startButton) &&
                 IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -367,9 +367,10 @@ void Title()
 
                 title = false;
             }
+
             // ---------- DRAW ----------
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
+            BeginDrawing();
+            ClearBackground(RAYWHITE);
 
             DrawText("Arbolatro", 550, 80, 40, DARKBLUE);
 
