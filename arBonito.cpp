@@ -379,7 +379,7 @@ void Title()
             DrawRectangleLinesEx(inputBox, 2, GRAY);
             
             if(!inputFocused)
-                DrawText("Leave empty for seed", inputBox.x + 10, inputBox.y + 8, 20, BLACK);
+                DrawText("Leave empty for random seed", inputBox.x + 10, inputBox.y + 8, 20, BLACK);
             else
             {
                 DrawText(charSeed,  inputBox.x + 10, inputBox.y + 8, 20, BLACK);
