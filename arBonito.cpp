@@ -281,8 +281,13 @@ struct arBonito: public BST< visData >
                     PlaySound(sfx_extract);
                     cout << "Push node to inventory: " << clicked->dato.val << endl;
                     inventory.pushBack(this->extraeNodo(clicked));   // insertar en el inventario
+                } else 
+                {
+                    dragging = true;
+                    lastMousePos = GetMousePosition();
                 }
             }
+
             // Click der for putting it back in the root
             if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) 
             {
@@ -298,18 +303,7 @@ struct arBonito: public BST< visData >
                 }
             }
 
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) 
-            {
-                cout << "HOLD" << endl;
-                // Only start panning if clicking empty space
-                if (findClickedNode(raiz) == nullptr) {
-                    dragging = true;
-                    lastMousePos = GetMousePosition();
-                }
-            }
-
             if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
-                cout << "RELEASED" << endl;
                 dragging = false;
             }
 
