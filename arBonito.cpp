@@ -89,7 +89,9 @@ struct arBonito: public BST< visData >
         cY = alto / 2;
     }
 
-    ~arBonito ()=default;
+    ~arBonito (){
+        CloseWindow();
+    }
     // Check if mouse click is inside the circle of a node
     bool isNodeClicked(nodoT<visData>* n) {
         if (!n) return false;
@@ -247,7 +249,11 @@ struct arBonito: public BST< visData >
 
         Sound sfx_extract = LoadSound("assets/sfx/cardSlide1.ogg");
         Sound sfx_insert = LoadSound("assets/sfx/chips2.ogg");
-
+        
+        //Modify volume
+        SetSoundVolume(sfx_extract, 0.5);
+        SetSoundVolume(sfx_insert, 0.5);
+        
         PlayMusicStream(bgm);
 
         float timePlayed = 0.0f;
@@ -334,13 +340,12 @@ arBonito V(ancho, alto, &Basura);
 //Main title function start
 void Title()
 {
-    Texture2D controls = LoadTexture("assets/controls(1).png");        // Controls loading
+    Texture2D controls = LoadTexture("assets/controls.png");        // Controls loading
     bool title = true;
 
-    int seed = 0;
-    int maxSeed = 999999;
+    string seed;
     
-    float boxWidth =250;
+    float boxWidth =340;
     float boxHeight =50;
 
     Rectangle inputBox ={ancho  / 2 - boxWidth  / 2, alto / 2 - boxHeight / 2, boxWidth, boxHeight};
@@ -377,30 +382,27 @@ void Title()
             if (inputFocused) {
                 int key = GetCharPressed();
                 while (key > 0) {
-                    if (key >= '0' && key <= '9') {
-                        int digit = key - '0';
-                        int newSeed = seed * 10 + digit;
-                        if (newSeed <= maxSeed) {
-                            seed = newSeed;
-                        }
+                    if (key >= '0' && key <= '9' && seed.size()<9) {
+                        seed.push_back(key);
                     }
                     key = GetCharPressed();
                 }
 
                 // Backspace
                 if (IsKeyPressed(KEY_BACKSPACE)) {
-                    seed /= 10;
+                    if(!seed.empty()) 
+                        seed.pop_back();
                 }
             }
-            const char* charSeed = to_string(seed).c_str();
+            const char* charSeed = seed.c_str();
             
             // --- START BUTTON ---
             if (CheckCollisionPointRec(GetMousePosition(), startButton) &&
                 IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
 
                 // Convert seed to unsigned int or generate one if blank
-                if (seed) {
-                    semilla=seed;
+                if (!seed.empty()) {
+                    semilla=stoi(seed);
                 } else {
                     semilla = GetRandomValue(0, 999999);
                 }
@@ -418,7 +420,7 @@ void Title()
             DrawRectangleRec(inputBox, LIGHTGRAY);
             DrawRectangleLinesEx(inputBox, 2, GRAY);
             
-            if(!inputFocused)
+            if(seed.empty())
                 DrawText("Leave empty for random seed", inputBox.x + 10, inputBox.y + 8, 20, BLACK);
             else
             {
@@ -431,6 +433,7 @@ void Title()
             DrawRectangleRec(startButton, SKYBLUE);
             DrawRectangleLinesEx(startButton, 2, BLUE);
             DrawText("Start", startButton.x + 45, startButton.y + 15, 20, DARKBLUE);
+
 
 
             DrawTexture(controls,ancho-controls.width, alto-controls.height,WHITE);
