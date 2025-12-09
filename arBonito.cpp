@@ -55,6 +55,11 @@ ostream & operator << (ostream & s, visData &v)
 listaS<nodoT<visData>*> inventory;
 int selectedSlot = -1; 
 
+//camera offset for dragging
+Vector2 cameraOffset = {0, 0};
+Vector2 lastMousePos = {0, 0};
+bool dragging = false;
+
 struct arBonito: public BST< visData >
 {
     int ancho, alto;
@@ -114,8 +119,12 @@ struct arBonito: public BST< visData >
     {
         if (!n) return;
 
-        n->dato.x = x;
-        n->dato.y = y;
+        n->dato.x = x + cameraOffset.x;
+        n->dato.y = y + cameraOffset.y;
+
+        // Shift positions by camera offset
+        //float newx = n->dato.x + cameraOffset.x;
+        //float newy = n->dato.y + cameraOffset.y;
 
         computePosition(n->izq, x - sep, y + 80, sep / 1.7 );
         computePosition(n->der, x + sep, y + 80, sep / 1.7 );
@@ -123,6 +132,7 @@ struct arBonito: public BST< visData >
 
     void drawTree(nodoT <visData> *n) {
         if (!n) return;
+
 
         // Draw edges first
         if (n->izq) 
@@ -286,6 +296,31 @@ struct arBonito: public BST< visData >
                     selectedSlot = -1; // segfault sino
 
                 }
+            }
+
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) 
+            {
+                cout << "HOLD" << endl;
+                // Only start panning if clicking empty space
+                if (findClickedNode(raiz) == nullptr) {
+                    dragging = true;
+                    lastMousePos = GetMousePosition();
+                }
+            }
+
+            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+                cout << "RELEASED" << endl;
+                dragging = false;
+            }
+
+            if (dragging) {
+                Vector2 mouse = GetMousePosition();
+                Vector2 delta = { mouse.x - lastMousePos.x, mouse.y - lastMousePos.y };
+
+                cameraOffset.x += delta.x;
+                cameraOffset.y += delta.y;
+
+                lastMousePos = mouse;
             }
 
             //Update
