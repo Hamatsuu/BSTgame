@@ -109,7 +109,7 @@ struct arBonito: public BST< visData >
         return right;
     }
 
-    //calcular posiciones para el BST
+    // Recursively calculate positions for the BST
     void computePosition(nodoT <visData> *n, float x, float y, float sep)
     {
         if (!n) return;
@@ -261,7 +261,7 @@ struct arBonito: public BST< visData >
 
             //BGM update end
 
-            // --- CLICK TO DELETE NODE ---
+            // Click izq for removing the node from the BST 
             if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) 
             {   
 
@@ -273,7 +273,7 @@ struct arBonito: public BST< visData >
                     inventory.pushBack(this->extraeNodo(clicked));   // insertar en el inventario
                 }
             }
-
+            // Click der for putting it back in the root
             if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) 
             {
                 nodoT<visData>* clicked = findClickedNode(this->raiz);
