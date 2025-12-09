@@ -177,6 +177,8 @@ struct arBonito: public BST< visData >
         {
             nodoT<visData>* n = p->dato;
 
+            // Not using visData x y, since its a simply linked list.
+            // keeping track of each nodes pos and updating seemed cumbersome
             float x = startX;
             float y = startY + i * spacing;
 
