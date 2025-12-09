@@ -137,75 +137,83 @@ struct arBonito: public BST< visData >
         DrawCircleV({n->dato.x, n->dato.y}, nodeRadius, SKYBLUE);
         DrawCircleLines(n->dato.x, n->dato.y, nodeRadius, DARKBLUE);
 
+        string s = to_string(n->dato.val);
+        int fontSize = 20;
+        int textWidth = MeasureText(s.c_str(), fontSize);
+        int textHeight = fontSize; // approximation
         DrawText(
-            to_string(n->dato.val).c_str(),
-            n->dato.x - 10,
-            n->dato.y - 10,
-            20,
+            s.c_str(),
+            n->dato.x - textWidth / 2,
+            n->dato.y - textHeight / 2,
+            fontSize,
             BLACK
         );
     }
 
     void drawInventory()
     {
-        const int startX = 1220;  // right side of your 1280 window
+        const int startX = ancho - 80;  // locked a ancho - offset 
         const int startY = 60;
         const int spacing = 60;
-        const int invRadius = 25;
+        const int invRadius = 22;
 
         nodoS<nodoT<visData>*> *p = inventory.raiz;
 
-        int i = 0; // use for inventory slots 
+        int i = 0; // keep track of selected slot
 
-        while (p)
+        DrawText("Inventory:", startX - 50, 10, 20, DARKGRAY);
+
+        while (p) // break p->sig = nullptr
         {
             nodoT<visData>* n = p->dato;
 
             float x = startX;
             float y = startY + i * spacing;
 
-            // draw circle
+            // Draw node 
             if (selectedSlot == i) 
             {
                 DrawCircleV({x, y}, invRadius, GOLD);
 
             } else 
-            {
+        {
                 DrawCircleV({x, y}, invRadius, LIGHTGRAY);
 
             }
             DrawCircleLines(x, y, invRadius, DARKGRAY);
 
-            // draw value inside
+            // Node value 
+
+            string s = to_string(n->dato.val);
+            int fontSize = 20;
+            int textWidth = MeasureText(s.c_str(), fontSize);
+            int textHeight = fontSize; // approximation
             DrawText(
-                to_string(n->dato.val).c_str(),
-                x - 13,
-                y - 10,
-                18,
+                s.c_str(),
+                x - textWidth / 2,
+                y - textHeight / 2,
+                fontSize,
                 BLACK
             );
-
             i++;
             p = p->sig;
         }
 
-        // optional title
-        DrawText("Inventory:", startX - 50, 10, 20, DARKGRAY);
     }
 
     void update()
     {
         computePosition(this->raiz, ancho/2, 80,300);
-        // HANDLE INVENTORY HOTKEYS (1–9)
+        // Inventory hotkeys (1–9)
         for (int k = 0; k < 9; k++)
         {
             if (IsKeyPressed(KEY_ONE + k))  // KEY_ONE..KEY_NINE are consecutive
             {
-                // Only allow selecting valid slots
+                // Valid slots check
                 if (k < (int)inventory.size())   
                     selectedSlot = k;
                 else
-                    selectedSlot = -1; // invalid slot → deselect
+                    selectedSlot = -1; // invalid slot
             }
         }
     }
@@ -227,7 +235,7 @@ struct arBonito: public BST< visData >
         InitAudioDevice();              // Initialize audio device
 
         Music bgm =LoadMusicStream("assets/main_theme.mp3"); //Balatro bgm
-        
+
         Sound sfx_extract = LoadSound("assets/cardSlide1.ogg");
         Sound sfx_insert = LoadSound("assets/chips2.ogg");
 
@@ -261,7 +269,7 @@ struct arBonito: public BST< visData >
                 if (clicked) 
                 {
                     PlaySound(sfx_extract);
-                    cout << "Nodo a Inventario: " << clicked->dato.val << endl;
+                    cout << "Push node to inventory: " << clicked->dato.val << endl;
                     inventory.pushBack(this->extraeNodo(clicked));   // insertar en el inventario
                 }
             }
@@ -273,7 +281,7 @@ struct arBonito: public BST< visData >
                 {
                     PlaySound(sfx_insert);
                     nodoS <nodoT <visData>*> *apu = inventory.Extrae(inventory.buscaPos(selectedSlot)); // sus
-                    cout << "Insertar Nodo a Raíz: " << apu->dato->dato.val << endl;
+                    cout << "Insert node to root node: " << apu->dato->dato.val << endl;
                     this->inserta(apu->dato);   // insertar a la raiz 
                     selectedSlot = -1; // segfault sino
 
@@ -303,7 +311,7 @@ int main (int argc, char **argv)
         semilla = atol (argv[2]);
 
     cout << endl
-        << "Se inicializó el generador de número aleatorios con "
+        << "Initialized random number generator with seed: "
         << semilla << endl << endl;
 
     //Llenamos el árbol
@@ -314,7 +322,7 @@ int main (int argc, char **argv)
         visData val ((int) (lrand48 () % 1000));
 
         V.inserta (val);
-        cout << "Insertamos el valor " << val << " al árbol." << endl;
+        cout << "Insert value " << val << " to the BST." << endl;
     }
     cout << endl;
 
