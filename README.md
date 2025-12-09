@@ -71,7 +71,7 @@ void drawTree(nodoT <visData> *n)
 
 ---
 
-Inventory is stored as a global `listaS<nodoT<visData>*>`.
+Inventory is stored as a global `listaS<nodoT<visData>*>`
 ```cpp
 listaS<nodoT<visData>*> inventory;
 int selectedSlot = -1;
@@ -80,6 +80,8 @@ int selectedSlot = -1;
 ```cpp
 inventory.pushBack(this->extraeNodo(clicked));
 ```
+
+---
 
 ```cpp
 void drawInventory() {
@@ -98,6 +100,7 @@ void drawInventory() {
 ```
 
 ---
+
 ```cpp
 // Highlight selected inv slot
 for (int k = 0; k < 9; k++) 
@@ -112,6 +115,8 @@ for (int k = 0; k < 9; k++)
 }
 ```
 
+---
+
 ```cpp
 // Extract a node
 if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) 
@@ -123,6 +128,8 @@ if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
     }
 }
 ```
+
+---
 
 ```cpp
 // Insert a node
@@ -153,3 +160,4 @@ while (!WindowShouldClose()) {
     // Rendering
     render();
 }
+```
