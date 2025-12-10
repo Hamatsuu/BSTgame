@@ -433,7 +433,7 @@ void Title()
     float boxHeight =50;
 
     Rectangle inputBox ={ancho  / 2 - boxWidth  / 2, alto / 2 - boxHeight / 2, boxWidth, boxHeight};
-    Rectangle startButton = {ancho/2 - 150.00/2, (alto/2 - boxHeight/2) + boxHeight + 20,150,50};
+    Rectangle startButton = {ancho/2 - 150.0f/2.0f, (alto/2 - boxHeight/2) + boxHeight + 20.0f, 150.0f, 50.0f};
 
     bool inputFocused = false;
 
