@@ -173,7 +173,13 @@ struct arBonito: public BST< visData >
         drawTree(n->der);
 
         // Draw node
-        DrawCircleV({n->dato.x, n->dato.y}, nodeRadius, SKYBLUE);
+        if (this->raiz == n)
+        {
+            DrawCircleV({n->dato.x, n->dato.y}, nodeRadius, GREEN);
+        } else {
+            DrawCircleV({n->dato.x, n->dato.y}, nodeRadius, SKYBLUE);
+        }
+
         DrawCircleLines(n->dato.x, n->dato.y, nodeRadius, DARKBLUE);
 
         string s = to_string(n->dato.val);
