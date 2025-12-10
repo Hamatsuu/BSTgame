@@ -59,7 +59,7 @@ int selectedSlot = -1;
 const int MAX_SLOTS = 4;
 
 //camera offset for dragging
-Vector2 cameraOffset = {0, 0};
+Vector2 cameraOffset = {600, 100}; //punto inicial también
 Vector2 lastMousePos = {0, 0};
 bool dragging = false;
 
@@ -116,20 +116,47 @@ struct arBonito: public BST< visData >
         return right;
     }
 
-    // Recursively calculate positions for the BST
-    void computePosition(nodoT <visData> *n, float x, float y, float sep)
+    void assignInorderX(nodoT<visData>* n, int &currentX, float spacing)
+    { // si usabamos la del profe era cambiar su func de BST.h
+        if (!n) return;
+
+        assignInorderX(n->izq, currentX, spacing);
+
+        n->dato.x = currentX * spacing;   // evenly spaced horizontally
+        currentX++;
+
+        assignInorderX(n->der, currentX, spacing);
+    }
+
+    void assignY(nodoT<visData>* n, int depth)
     {
         if (!n) return;
 
-        n->dato.x = x + cameraOffset.x;
-        n->dato.y = y + cameraOffset.y;
+        n->dato.y = 80 * depth;
 
-        // Shift positions by camera offset
-        //float newx = n->dato.x + cameraOffset.x;
-        //float newy = n->dato.y + cameraOffset.y;
+        assignY(n->izq, depth + 1);
+        assignY(n->der, depth + 1);
+    }
 
-        computePosition(n->izq, x - sep, y + 80, sep / 1.7 );
-        computePosition(n->der, x + sep, y + 80, sep / 1.7 );
+    void applyCameraOffset(nodoT<visData>* n)
+    {
+        if (!n) return;
+
+        n->dato.x += cameraOffset.x;
+        n->dato.y += cameraOffset.y;
+
+        applyCameraOffset(n->izq);
+        applyCameraOffset(n->der);
+    }
+
+    void computeLayout()
+    {
+        int xIndex = 0;
+
+        assignInorderX(raiz, xIndex, 32);
+        assignY(raiz, 0);
+
+        applyCameraOffset(raiz);
     }
 
     void drawTree(nodoT <visData> *n) {
@@ -217,7 +244,9 @@ struct arBonito: public BST< visData >
 
     void update()
     {
-        computePosition(this->raiz, ancho/2, 80,300);
+        //computePositions(this->raiz, ancho/2, 50, 40);
+        computeLayout();
+
         // Inventory hotkeys (1–9)
         for (int k = 0; k < 9; k++)
         {
@@ -240,96 +269,8 @@ struct arBonito: public BST< visData >
         drawTree(this->raiz);
         drawInventory();
 
-        EndDrawing ();
-    }
-
-    void Loop()
-    {
-        //Load BGM start
-        Music bgm =LoadMusicStream("assets/tracks/main_theme.mp3"); //Balatro bgm
-
-        Sound sfx_extract = LoadSound("assets/sfx/cardSlide1.ogg");
-        Sound sfx_insert = LoadSound("assets/sfx/chips2.ogg");
-        
-        //Modify volume
-        SetSoundVolume(sfx_extract, 0.5);
-        SetSoundVolume(sfx_insert, 0.5);
-        
-        PlayMusicStream(bgm);
-
-        float timePlayed = 0.0f;
-
-        //Load BGM end
-
-        // Main loop
-        while (!WindowShouldClose ()) // Detect window close button or ESC key
-        {
-
-            //BGM update start
-            UpdateMusicStream(bgm);   // Update music buffer with new stream data
-
-            timePlayed = GetMusicTimePlayed(bgm)/GetMusicTimeLength(bgm);
-
-            if (timePlayed > 1.0f) timePlayed = 1.0f;
-
-            //BGM update end
-
-            // Click izq for removing the node from the BST 
-            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && inventory.size() <= MAX_SLOTS - 1) 
-            {   
-
-                nodoT<visData>* clicked = findClickedNode(this->raiz);
-                if (clicked) 
-                {
-                    PlaySound(sfx_extract);
-                    cout << "Push node to inventory: " << clicked->dato.val << endl;
-                    inventory.pushBack(this->extraeNodo(clicked));   // insertar en el inventario
-                } else 
-                {
-                    dragging = true;
-                    lastMousePos = GetMousePosition();
-                }
-            }
-
-            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
-                dragging = false;
-            }
-
-            if (dragging) {
-                Vector2 mouse = GetMousePosition();
-                Vector2 delta = { mouse.x - lastMousePos.x, mouse.y - lastMousePos.y };
-
-                cameraOffset.x += delta.x;
-                cameraOffset.y += delta.y;
-
-                lastMousePos = mouse;
-            }
-
-            // Click der for putting it back in the root
-            if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) 
-            {
-                nodoT<visData>* clicked = findClickedNode(this->raiz);
-                if (clicked == this->raiz && selectedSlot != -1) 
-                {
-                    PlaySound(sfx_insert);
-                    nodoS <nodoT <visData>*> *apu = inventory.Extrae(inventory.buscaPos(selectedSlot)); // sus
-                    cout << "Insert node to root node: " << apu->dato->dato.val << endl;
-                    this->inserta(apu->dato);   // insertar a la raiz 
-                    selectedSlot = -1; // segfault sino
-                    if (inventory.size() == 0) 
-                    {
-                        cout << "El arbol es balanceado y/n: " << balanceado(this->raiz) << endl;
-                        if (balanceado(this->raiz))
-                        {
-                            cout << "GANASTE" << endl;
-                            won = true;
-                        }
-                    }
-
-                }
-            }
-
-            if (won)
+        // So it appears on top of the tree
+        if (won)
             {
                 string win = "Lo lograste!";
                 string win2 = "Balanceaste el árbol completamente";
@@ -360,14 +301,109 @@ struct arBonito: public BST< visData >
                     fontSize-50,
                     BLACK 
                 );
-
-
             }
-            //Update 
+
+        EndDrawing ();
+    }
+
+    void Loop()
+    {
+        //Load BGM start
+        Music bgm =LoadMusicStream("assets/tracks/main_theme.mp3"); //Balatro bgm
+
+        Sound sfx_extract = LoadSound("assets/sfx/cardSlide1.ogg");
+        Sound sfx_insert = LoadSound("assets/sfx/chips2.ogg");
+
+        //Modify volume
+        SetSoundVolume(sfx_extract, 0.5);
+        SetSoundVolume(sfx_insert, 0.5);
+
+        PlayMusicStream(bgm);
+
+        float timePlayed = 0.0f;
+        //Load BGM end
+
+        //this->raiz->dato.x = 5000;
+        // this->raiz->dato.y = 50;
+
+        // Main loop
+        while (!WindowShouldClose ()) // Detect window close button or ESC key
+        {
+                        //BGM update start
+            UpdateMusicStream(bgm);   // Update music buffer with new stream data
+
+            timePlayed = GetMusicTimePlayed(bgm)/GetMusicTimeLength(bgm);
+
+            if (timePlayed > 1.0f) timePlayed = 1.0f;
+
+            //BGM update end
+
+            // Click izq for removing the node from the BST 
+            if (IsMouseButtonPressed(MOUSE_LEFT_BUTTON) && inventory.size() <= MAX_SLOTS - 1) 
+            {
+
+                nodoT<visData>* clicked = findClickedNode(this->raiz);
+                if (clicked) 
+                {
+                    PlaySound(sfx_extract);
+                    cout << "Push node to inventory: " << clicked->dato.val << endl;
+                    inventory.pushBack(this->extraeNodo(clicked));   // insertar en el inventario
+
+                    computeLayout();
+
+                } else 
+            {
+                    dragging = true;
+                    lastMousePos = GetMousePosition();
+                }
+            }
+
+            if (IsMouseButtonReleased(MOUSE_LEFT_BUTTON)) {
+                dragging = false;
+            }
+
+            if (dragging) 
+            {
+                Vector2 mouse = GetMousePosition();
+                Vector2 delta = { mouse.x - lastMousePos.x, mouse.y - lastMousePos.y };
+
+                cameraOffset.x += delta.x;
+                cameraOffset.y += delta.y;
+
+                lastMousePos = mouse;
+            }
+
+            // Click der for putting it back in the root
+            if (IsMouseButtonPressed(MOUSE_RIGHT_BUTTON)) 
+            {
+                nodoT<visData>* clicked = findClickedNode(this->raiz);
+                if (clicked == this->raiz && selectedSlot != -1) 
+                {
+                    PlaySound(sfx_insert);
+                    nodoS <nodoT <visData>*> *apu = inventory.Extrae(inventory.buscaPos(selectedSlot)); // sus
+                    cout << "Insert node to root node: " << apu->dato->dato.val << endl;
+                    this->inserta(apu->dato);   // insertar a la raiz 
+                    selectedSlot = -1; // segfault sino
+
+                    computeLayout();
+
+                    if (inventory.size() == 0) 
+                    {
+                        cout << "El arbol es balanceado y/n: " << balanceado(this->raiz) << endl;
+                        if (balanceado(this->raiz))
+                        {
+                            cout << "GANASTE" << endl;
+                            won = true;
+                        }
+                    }
+
+                }
+            }
+
             update ();
 
-            //Draw;
             render ();
+
         }
     }
 };
@@ -378,8 +414,6 @@ long semilla = 0;
 int ancho = 1280, alto = 1024;
 BST<visData> Basura;
 arBonito V(ancho, alto, &Basura);
-
-
 
 //Main title function start
 void Title()
