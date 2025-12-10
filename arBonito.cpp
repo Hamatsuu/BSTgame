@@ -53,6 +53,7 @@ ostream & operator << (ostream & s, visData &v)
 }
 
 
+bool won = false;
 listaS<nodoT<visData>*> inventory;
 int selectedSlot = -1; 
 const int MAX_SLOTS = 4;
@@ -318,10 +319,49 @@ struct arBonito: public BST< visData >
                     if (inventory.size() == 0) 
                     {
                         cout << "El arbol es balanceado y/n: " << balanceado(this->raiz) << endl;
-
+                        if (balanceado(this->raiz))
+                        {
+                            cout << "GANASTE" << endl;
+                            won = true;
+                        }
                     }
 
                 }
+            }
+
+            if (won)
+            {
+                string win = "Lo lograste!";
+                string win2 = "Balanceaste el árbol completamente";
+                string clue = "Presiona ESC para salir";
+                int fontSize = 80;
+                int textWidth = MeasureText(win.c_str(), fontSize);
+                int textWidth2 = MeasureText(win2.c_str(), fontSize-25);
+                int textWidth3 = MeasureText(clue.c_str(), fontSize-50);
+                int textHeight = fontSize; // approximation
+                DrawText(
+                    win.c_str(),
+                    ancho/2 - textWidth / 2,
+                    400 - textHeight / 2,
+                    fontSize,
+                    DARKBLUE 
+                );
+                DrawText(
+                    win2.c_str(),
+                    ancho/2 - textWidth2 / 2,
+                    500 - (textHeight-25) / 2,
+                    fontSize-25,
+                    DARKBLUE 
+                );
+                DrawText(
+                    clue.c_str(),
+                    ancho/2 - textWidth3 / 2,
+                    alto - (textHeight-20) / 2,
+                    fontSize-50,
+                    BLACK 
+                );
+
+
             }
             //Update 
             update ();
@@ -340,6 +380,7 @@ BST<visData> Basura;
 arBonito V(ancho, alto, &Basura);
 
 
+
 //Main title function start
 void Title()
 {
@@ -347,7 +388,7 @@ void Title()
     bool title = true;
 
     string seed;
-    
+
     float boxWidth =340;
     float boxHeight =50;
 
@@ -360,7 +401,8 @@ void Title()
     PlayMusicStream(bgm);
     float timePlayed =0.0f;
 
-    while (!WindowShouldClose()) {
+    while (!WindowShouldClose()) 
+    {
 
 
         UpdateMusicStream(bgm);   // Update music buffer with new stream data
@@ -369,7 +411,8 @@ void Title()
 
         if (timePlayed > 1.0f) timePlayed = 1.0f;
 
-        if (title) {
+        if (title) 
+        {
 
             // Mouse detector
             if (CheckCollisionPointRec(GetMousePosition(), inputBox)) {
@@ -397,7 +440,7 @@ void Title()
                 }
             }
             const char* charSeed = seed.c_str();
-            
+
             // --- START BUTTON ---
             if (CheckCollisionPointRec(GetMousePosition(), startButton) &&
                 IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -421,7 +464,7 @@ void Title()
             // Draw input box
             DrawRectangleRec(inputBox, LIGHTGRAY);
             DrawRectangleLinesEx(inputBox, 2, GRAY);
-            
+
             if(seed.empty())
                 DrawText("Leave empty for random seed", inputBox.x + 10, inputBox.y + 8, 20, BLACK);
             else
@@ -455,9 +498,11 @@ void Title()
 //main function for real
 int main (int argc, char **argv)
 {
+
     InitAudioDevice(); //Audio device
     InitWindow(ancho,alto, "Arbonito");
     SetTargetFPS(60);
+    //SetExitKey(KEY_NULL);        // Disable ESC auto-exit
 
     Title();
     if (argc > 1)
@@ -482,8 +527,6 @@ int main (int argc, char **argv)
     cout << endl;
 
     V.Loop ();
-
-
 
     return 0;
 }
