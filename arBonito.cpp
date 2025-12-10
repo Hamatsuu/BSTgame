@@ -198,16 +198,23 @@ struct arBonito: public BST< visData >
     void drawInventory()
     {
         const int startX = ancho - 80;  // locked a ancho - offset 
-        const int startY = 60;
+        const int startY = 80;
         const int spacing = 60;
         const int invRadius = 22;
 
         nodoS<nodoT<visData>*> *p = inventory.raiz;
 
         int i = 0; // keep track of selected slot
+        
+        string c_inventory=to_string(inventory.size());
+        c_inventory.push_back('/');
+        c_inventory= c_inventory+to_string(MAX_SLOTS);
+        
+        const char* c_slots= c_inventory.c_str();
 
         DrawText("Inventory:", startX - 50, 10, 20, DARKGRAY);
-
+        DrawText(c_slots, startX - 20, 30, 20, DARKGRAY);
+        
         while (p) // break p->sig = nullptr
         {
             nodoT<visData>* n = p->dato;
