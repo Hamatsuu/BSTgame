@@ -310,7 +310,10 @@ struct arBonito: public BST< visData >
                     this->inserta(apu->dato);   // insertar a la raiz 
                     selectedSlot = -1; // segfault sino
                     if (inventory.size() == 0) 
+                    {
                         cout << "El arbol es balanceado y/n: " << balanceado(this->raiz) << endl;
+
+                    }
 
                 }
             }
@@ -339,22 +342,21 @@ void Title()
 
     int seed = 0;
     int maxSeed = 999999;
-    
+
     float boxWidth =250;
     float boxHeight =50;
 
     Rectangle inputBox ={ancho  / 2 - boxWidth  / 2, alto / 2 - boxHeight / 2, boxWidth, boxHeight};
     Rectangle startButton = {ancho/2 - 150.00/2, (alto/2 - boxHeight/2) + boxHeight + 20,150,50};
-    
+
     bool inputFocused = false;
-    
-     
+
     Music bgm =LoadMusicStream("assets/tracks/title_screen.mp3"); //Balatro bgm
     PlayMusicStream(bgm);
     float timePlayed =0.0f;
 
     while (!WindowShouldClose()) {
-       
+
 
         UpdateMusicStream(bgm);   // Update music buffer with new stream data
 
@@ -393,7 +395,7 @@ void Title()
                 }
             }
             const char* charSeed = to_string(seed).c_str();
-            
+
             // --- START BUTTON ---
             if (CheckCollisionPointRec(GetMousePosition(), startButton) &&
                 IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
@@ -407,7 +409,7 @@ void Title()
 
                 title = false;
             }
-            
+
             // ---------- DRAW ----------
             BeginDrawing();
             ClearBackground(RAYWHITE);
@@ -417,7 +419,7 @@ void Title()
             // Draw input box
             DrawRectangleRec(inputBox, LIGHTGRAY);
             DrawRectangleLinesEx(inputBox, 2, GRAY);
-            
+
             if(!inputFocused)
                 DrawText("Leave empty for random seed", inputBox.x + 10, inputBox.y + 8, 20, BLACK);
             else
@@ -441,7 +443,7 @@ void Title()
         }
 
         EndDrawing();
-    
+
     }
 }
 //Main title function end
@@ -453,7 +455,7 @@ int main (int argc, char **argv)
     InitAudioDevice(); //Audio device
     InitWindow(ancho,alto, "Arbonito");
     SetTargetFPS(60);
-    
+
     Title();
     if (argc > 1)
         N = atoi (argv[1]);
@@ -477,6 +479,8 @@ int main (int argc, char **argv)
     cout << endl;
 
     V.Loop ();
+
+
 
     return 0;
 }
