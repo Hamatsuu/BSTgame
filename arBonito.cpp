@@ -63,6 +63,9 @@ Vector2 cameraOffset = {600, 100}; //punto inicial también
 Vector2 lastMousePos = {0, 0};
 bool dragging = false;
 
+//Para el sonido cuando ganas
+bool won_sfx=false;
+
 struct arBonito: public BST< visData >
 {
     int ancho, alto;
@@ -273,11 +276,12 @@ struct arBonito: public BST< visData >
             }
         }
     }
-
+    
     void render()
     {
-        BeginDrawing ();
+        
 
+        BeginDrawing ();
         ClearBackground (RAYWHITE);
         drawTree(this->raiz);
         drawInventory();
@@ -285,6 +289,11 @@ struct arBonito: public BST< visData >
         // So it appears on top of the tree
         if (won)
             {
+                if(!won_sfx){
+                    Sound sfx_won = LoadSound("assets/sfx/win.ogg");
+                    PlaySound(sfx_won);
+                    won_sfx=true;
+                }  
                 string win = "You won!";
                 string win2 = "You managed to balance the tree properly";
                 string clue = "Press ESC to exit";
