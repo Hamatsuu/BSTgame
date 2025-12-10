@@ -278,9 +278,9 @@ struct arBonito: public BST< visData >
         // So it appears on top of the tree
         if (won)
             {
-                string win = "Lo lograste!";
-                string win2 = "Balanceaste el árbol completamente";
-                string clue = "Presiona ESC para salir";
+                string win = "You won!";
+                string win2 = "You managed to balance the tree properly";
+                string clue = "Press ESC to exit";
                 int fontSize = 80;
                 int textWidth = MeasureText(win.c_str(), fontSize);
                 int textWidth2 = MeasureText(win2.c_str(), fontSize-25);
@@ -291,21 +291,21 @@ struct arBonito: public BST< visData >
                     ancho/2 - textWidth / 2,
                     400 - textHeight / 2,
                     fontSize,
-                    DARKBLUE 
+                    GOLD 
                 );
                 DrawText(
                     win2.c_str(),
                     ancho/2 - textWidth2 / 2,
                     500 - (textHeight-25) / 2,
                     fontSize-25,
-                    DARKBLUE 
+                    GOLD 
                 );
                 DrawText(
                     clue.c_str(),
                     ancho/2 - textWidth3 / 2,
                     alto - (textHeight-20) / 2,
                     fontSize-50,
-                    BLACK 
+                    GOLD 
                 );
             }
 
@@ -417,7 +417,7 @@ struct arBonito: public BST< visData >
 //We take it all out of the main to make it global so its easier to access it from the Title function
 int i, N = 16;
 long semilla = 0;
-int ancho = 1280, alto = 1024;
+int ancho = 1920, alto = 1080;
 BST<visData> Basura;
 arBonito V(ancho, alto, &Basura);
 
@@ -499,7 +499,7 @@ void Title()
             BeginDrawing();
             ClearBackground(RAYWHITE);
 
-            DrawText("Arbolatro", 550, 80, 40, DARKBLUE);
+            DrawText("<<-ARBOLATRO->>", ancho/2 -180, 80, 40, DARKBLUE);
 
             // Draw input box
             DrawRectangleRec(inputBox, LIGHTGRAY);
