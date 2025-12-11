@@ -349,7 +349,11 @@ template < typename X > struct BST
             apu = predecesor(apu);
         }
     }
-
+/*
+    Código adaptado de:
+    Kartik. (2025, 8 octubre). Balanced Binary Tree or Not. GeeksforGeeks.
+        https://www.geeksforgeeks.org/dsa/how-to-determine-if-a-binary-tree-is-balanced/
+*/
     int _balanceado(nodoT<X> *raiz) 
     {
 
